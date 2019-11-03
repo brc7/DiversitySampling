@@ -27,7 +27,7 @@ int main(int argc, char **argv){
         std::clog<<"Optional arguments: "<<std::endl; 
         std::clog<<"[--range race_range]: (Optional, default 1000) Hash range for each ACE (B)"<<std::endl;
         std::clog<<"[--reps race_reps]: (Optional, default 4) Number of ACE repetitions (R)"<<std::endl;
-        std::clog<<"[--hashes n_minhashes]: (Optional, default 1) Number of MinHashes for each ACE (n)"<<std::endl;
+        std::clog<<"[--hashes n_minhashes]: (Optional, default 4) Number of MinHashes for each ACE (n)"<<std::endl;
         std::clog<<"[--k kmer_size]: (Optional, default 6) Size of each MinHash k-mer (k)"<<std::endl;
         std::clog<<std::endl<<"Example usage:"<<std::endl; 
         std::clog<<"samplerace 15.0 data/input.fastq data/output.fastq --range 100 --reps 5 --hashes 3 --k 5"<<std::endl; 
@@ -41,7 +41,7 @@ int main(int argc, char **argv){
 
     int race_range = 1000;
     int race_repetitions = 4;
-    int hash_power = 1;
+    int hash_power = 4;
     int kmer_k = 6;
 
     for (int i = 0; i < argc; ++i){
