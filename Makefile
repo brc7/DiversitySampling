@@ -9,7 +9,7 @@ SRCS_DIR = src/
 
 BUILD_DIR = build/
 BIN_DIR = bin/
-INC := -I include
+INC := -I Include
 
 # List of target executables
 TARGETS = samplerace.cpp
