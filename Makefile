@@ -2,7 +2,7 @@
 # To make all binaries: make binaries
 
 CXX = g++
-CFLAGS = -O3 -std=c++11 -fopenmp
+CFLAGS = -O3 -std=c++11 #-fopenmp
 
 SRCS = SequenceMinHash.cpp io.cpp MurmurHash.cpp util.cpp RACE.cpp 
 SRCS_DIR = src/
