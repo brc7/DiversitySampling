@@ -25,13 +25,13 @@ int main(int argc, char **argv){
         std::clog<<"input: path to input data file (.fastq or .fasta extension)"<<std::endl; 
         std::clog<<"output: path to output sample file (same extension as input)"<<std::endl; 
         std::clog<<"Optional arguments: "<<std::endl; 
-        std::clog<<"[--range race_range]: (Optional, default 1000) Hash range for each ACE (B)"<<std::endl;
-        std::clog<<"[--reps race_reps]: (Optional, default 4) Number of ACE repetitions (R)"<<std::endl;
-        std::clog<<"[--hashes n_minhashes]: (Optional, default 4) Number of MinHashes for each ACE (n)"<<std::endl;
-        std::clog<<"[--k kmer_size]: (Optional, default 6) Size of each MinHash k-mer (k)"<<std::endl;
+        std::clog<<"[--range race_range]: (Optional, default 10000) Hash range for each ACE (B)"<<std::endl;
+        std::clog<<"[--reps race_reps]: (Optional, default 10) Number of ACE repetitions (R)"<<std::endl;
+        std::clog<<"[--hashes n_minhashes]: (Optional, default 1) Number of MinHashes for each ACE (n)"<<std::endl;
+        std::clog<<"[--k kmer_size]: (Optional, default 16) Size of each MinHash k-mer (k)"<<std::endl;
         std::clog<<std::endl<<"Example usage:"<<std::endl; 
-        std::clog<<"samplerace 15.0 data/input.fastq data/output.fastq --range 100 --reps 5 --hashes 3 --k 5"<<std::endl; 
-        std::clog<<"samplerace 0.1 data/input.fasta data/output.fasta --range 500 --k 5"<<std::endl; 
+        std::clog<<"samplerace 15.0 data/input.fastq data/output.fastq --range 100 --reps 50 --hashes 3 --k 5"<<std::endl; 
+        std::clog<<"samplerace 0.1 data/input.fasta data/output.fasta --range 500 --k 20"<<std::endl; 
         return -1; 
     }
 
@@ -40,9 +40,9 @@ int main(int argc, char **argv){
     std::ofstream samplestream(argv[3]);
 
     int race_range = 1000;
-    int race_repetitions = 4;
-    int hash_power = 4;
-    int kmer_k = 6;
+    int race_repetitions = 10;
+    int hash_power = 1;
+    int kmer_k = 16;
 
     for (int i = 0; i < argc; ++i){
         if (std::strcmp("--range",argv[i]) == 0){
