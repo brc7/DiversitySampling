@@ -2,9 +2,11 @@
 
 
 ## Introduction
-This repository implements a one-pass diversity sampling algorithm for DNA sequences. If you give this tool a stream of sequences, it automatically saves a diverse subset of them. Sequences are saved based on their distance from sequences that are already represented in the sample. It would be very slow to explicitly calculate the distances, so we use locality-sensitive hashing (LSH) to implement the fast algorithm described in our paper. 
+This repository implements a one-pass diversity sampling algorithm for DNA sequences. If you give this tool a stream of sequences or a fastq/fasta file, it will save a diverse subset of them. Sequences are saved based on their distance from sequences that are already represented in the sample. It would be very slow to explicitly calculate these distances, so we use locality-sensitive hashing (LSH) to implement the fast algorithm described in our paper. 
 
-This is interesting if you want to quickly estimate the biodiversity of a metagenomic sample, since different organisms often have sufficiently different sequences that our tool can ensure that each organism is represented in the sample. However, the tool should also work well for downsampling from other kinds of categories (chromosomes, genera, classes of bacteria, etc), provided the sequences are different enough. In a nutshell, our method attempts to save a set of sequences that maximizes genetic diversity. 
+This is interesting if you want to quickly estimate the biodiversity of a metagenomic sample. Since different organisms often have sufficiently different sequences, our tool can ensure that each organism is represented using only a few reads. In some cases, the data reduction can be quite dramatic - in one of our experiments, RACE only needed 5% of the reads to identify 95% of the species that were present. RACE is particularly good at representing species that occur very rarely since there is a very high probability that RACE will keep an unusual or unique sequence. Most other methods cannot make this guarantee without returning very large samples. 
+
+We tested RACE on human microbiome metagenomics data, but the tool should also work well for downsampling from other categories of labeled genetic sequences (The labels could be chromosomes, genera, classes of bacteria, etc), provided the sequences in each category are different enough. In a nutshell, our method attempts to save a set of sequences that maximizes genetic diversity. 
 
 ## Installation
 The algorithm is implemented as a command line tool written in C++. It takes in a fasta or fastq file, downsamples the file using the RACE method, and outputs a fasta or fastq file of diverse sequences. To compile the tool, clone the repo and 
@@ -33,7 +35,7 @@ Once you have the binaries compiled, you can run the algorithm on a test fastq f
 ```
 bin/samplerace 0.1 data/SRR1056036.fastq data/output.fastq 
 ```
-RACE will only require about 20 KB of RAM (not the > 10 GB needed by some other diversity sampling methods) and it can process about 10k sequences per second on a 2016 MacBook. The full 
+RACE will only require about 20 KB of RAM (in constrast to the > 10 GB needed by other diversity sampling methods such as Diginorm, coresets and buffer-based methods) and it can process about 2.5 Mbp/s on a 2016 MacBook. To start, try tau = 1.0 and use the default parameter settings - they usually work pretty well. 
 ```
 samplerace <tau> <input> <output> [--range race_range] [--reps race_reps] [--hashes n_minhashes] [-k kmer_size]
 Positional arguments: 
