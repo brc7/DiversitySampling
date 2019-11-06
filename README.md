@@ -27,7 +27,7 @@ There are a couple of hyperparameters that you may want to change:
 - hashes: This is the number of LSH functions we use for each row of the RACE array. Increasing this will directly increase the processing time but may also let you differentiate between sequences that are closer together in terms of edit distance. We recommend using only 1 hash. 
 - k: This is the size of each k-mer that is fed to the LSH function (MinHash). Increasing k means that we can differentiate between more similar sequences. To differentiate between species in metagenomic studies, we found that k = 16 is a good choice. If you want to differentiate between mutations or organisms within the same species, try a larger value of k. 
 
-A more in-depth explanation is available in our paper. Feel free to contact the authors with any questions. 
+A more in-depth explanation is available in our paper. Feel free to contact the authors with any questions. If it seems like RACE isn't returning very good samples, try increasing k and (to a lesser extent) increase the range. If RACE isn't returning enough samples, try increasing tau. If RACE is returning too many samples and you have already tried reducing tau, increase the reps. 
 
 ## How to run
 
