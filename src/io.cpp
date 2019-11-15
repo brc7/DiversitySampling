@@ -68,5 +68,45 @@ bool SequenceFeatures(std::istream& in, std::string& sequence, std::string& chun
     return true;
 }
 
+bool SequenceFeaturesSE(std::istream& in, std::string& sequence, std::string& chunk, std::string fastWhat){
+    return SequenceFeatures(in, sequence, chunk, fastWhat); 
+}
+
+bool SequenceFeaturesPE(std::istream& in1, std::istream& in2, std::string& sequence, std::string& chunk1, std::string& chunk2, std::string fastWhat){
+    bool success1 = SequenceFeatures(in2, sequence, chunk2, fastWhat); 
+    bool success2 = SequenceFeatures(in1, sequence, chunk1, fastWhat); 
+
+    if (!success1){
+        std::cerr<<"Error reading first "<<fastWhat<<" file"<<std::endl; 
+        return false; 
+    }
+    if (!success2){
+        std::cerr<<"Error reading second "<<fastWhat<<" file"<<std::endl; 
+        return false; 
+    }
+    return (success1 && success2); 
+
+}
+
+bool SequenceFeaturesI(std::istream& in, std::string& sequence, std::string& chunk, std::string fastWhat){
+    bool success = SequenceFeatures(in, sequence, chunk, fastWhat); 
+
+    // now tack on another few lines for the second chunk of the interleaved file! 
+    int chunksize = 0; 
+    int linesread = 0; 
+    if (fastWhat == "fasta") {
+        chunksize = 2;
+    } else if (fastWhat == "fastq") {
+        chunksize = 4;
+    }
+    std::string buffer;
+    while((linesread < chunksize) && (in)){
+        std::getline(in, buffer); 
+        linesread++; 
+        chunk += buffer; 
+        chunk += "\n"; 
+    }
+    return success; 
+}
 
 

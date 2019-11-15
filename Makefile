@@ -1,7 +1,7 @@
 # How to use 
 # To make all binaries: make binaries
 
-CXX = g++
+CXX = /usr/local/Cellar/gcc/9.1.0/bin/g++-9
 CFLAGS = -O3 -std=c++11 #-fopenmp
 
 SRCS = SequenceMinHash.cpp io.cpp MurmurHash.cpp util.cpp RACE.cpp 
@@ -9,7 +9,7 @@ SRCS_DIR = src/
 
 BUILD_DIR = build/
 BIN_DIR = bin/
-INC := -I Include
+INC := -I include
 
 # List of target executables
 TARGETS = samplerace.cpp
