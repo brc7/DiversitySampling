@@ -39,7 +39,7 @@ int main(int argc, char **argv){
         std::clog<<"samplerace <tau> <format> <input> <output>"; 
         std::clog<<" [--range race_range] [--reps race_reps] [--hashes n_minhashes] [-k kmer_size]"<<std::endl; 
         std::clog<<"Positional arguments: "<<std::endl; 
-        std::clog<<"tau: floating point RACE sampling threshold. Roughly determines how many samples you will store"<<std::endl; 
+        std::clog<<"tau: floating point RACE sampling threshold. Roughly determines how many samples you will store. You may specify this in scientific notation (i.e. 10e-6)"<<std::endl; 
         std::clog<<"format: Either PE, SE, or I for paired-end, single-end, and interleaved paired reads"<<std::endl; 
         std::clog<<"input: path to input data file (.fastq or .fasta extension). For PE format, specify two files."<<std::endl; 
         std::clog<<"output: path to output sample file (same extension as input). For PE format, specify two files."<<std::endl; 
@@ -49,10 +49,11 @@ int main(int argc, char **argv){
         std::clog<<"[--reps race_reps]: (Optional, default 10) Number of ACE repetitions (R)"<<std::endl;
         std::clog<<"[--hashes n_minhashes]: (Optional, default 1) Number of MinHashes for each ACE (n)"<<std::endl;
         std::clog<<"[--k kmer_size]: (Optional, default 16) Size of each MinHash k-mer (k)"<<std::endl;
-        
-        // std::clog<<std::endl<<"Example usage:"<<std::endl; 
-        // std::clog<<"samplerace 15.0 data/input.fastq data/output.fastq --range 100 --reps 50 --hashes 3 --k 5"<<std::endl; 
-        // std::clog<<"samplerace 0.1 data/input.fasta data/output.fasta --range 500 --k 20"<<std::endl; 
+
+        std::clog<<std::endl<<"Example usage:"<<std::endl; 
+        std::clog<<"samplerace 15.0 PE data/input-1.fastq data/input-2.fastq data/output-1.fastq data/output-2.fastq --range 100 --reps 50 --hashes 3 --k 5"<<std::endl; 
+        std::clog<<"samplerace 10e-6 SE data/input.fastq data/output.fastq --range 100 --reps 5 --hashes 1 --k 33"<<std::endl; 
+        std::clog<<"samplerace 0.1 SE data/input.fasta data/output.fasta --range 100000 --k 20"<<std::endl; 
         return -1; 
     }
 
@@ -112,7 +113,7 @@ int main(int argc, char **argv){
     }
 
     // OPTIONAL ARGUMENTS
-    int race_range = 1000;
+    int race_range = 10000;
     int race_repetitions = 10;
     int hash_power = 1;
     int kmer_k = 16;
