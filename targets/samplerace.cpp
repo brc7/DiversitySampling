@@ -116,12 +116,8 @@ int main(int argc, char **argv){
     int race_repetitions = 10;
     int hash_power = 1;
     int kmer_k = 16;
-    bool verbose = false; 
 
     for (int i = 0; i < argc; ++i){
-        if (std::strcmp("--v",argv[i]) == 0){
-            verbose = true; 
-        }
         if (std::strcmp("--range",argv[i]) == 0){
             if ((i+1) < argc){
                 race_range = std::stoi(argv[i+1]);
