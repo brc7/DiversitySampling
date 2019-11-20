@@ -19,19 +19,24 @@ The Makefile should produce build and bin directories and output the executable 
 We use the RACE data structure, which is an efficient way to estimate kernel densities on streaming data. RACE is a small 2D array of integer counters indexed by a LSH function. These counters can tell whether we have already seen data that is similar to a new sequence. The key idea is that we only store sequences if we haven't seen something similar before. This gives us a diverse sample. 
 
 ### Algorithm 
-RACE consists of an array of integer counters. These counters 
-
+RACE consists of a (B x R) array of integer counters and R different LSH functions. RACE acts as an online filter that dynamically keeps or discards sequences from a data stream. When a new sequence arrives, we hash the sequence using the R LSH functions to get R different hash values, which we use as a set of indices. We look up the integer counters at each index and take the average. The average is a *kernel density estimate*, or a measure of how many similar sequences we have seen so far. If the average is larger than a threshold, we discard the sequence since we have seen similar sequences. Otherwise, we keep the sequence. 
 
 ![RACE algorithm diagram](algorithm.png "RACE Algorithm")
 
+We use MinHash as the LSH function. MinHash takes two parameters - the length of the kmer to hash (k) and the number of MinHash signatures to use (n). These parameters change the sensitivity of the algorithm. If you increase (k), the Jaccard similarity between two sequences goes down. If you increase (n), RACE will become more sensitive to similarity differences. While increasing both parameters causes RACE to save more sequences, this happens for different reasons: For k, we change the interpretation of the input data while for n, we change the sensitivity of RACE to similarity differences. 
+
+![MinHash algorithm diagram](sequence_minhash.png "MinHash on sequences")
+
+
+### Hyperparameters
 
 There are a couple of hyperparameters that you may want to change: 
 
-- tau: This is a threshold for whether we should keep a new sequence or not. Increasing tau means that we will keep more sequences. Typical values for tau are between 0.1 and 100.0, depending on the size of the sample you wish to retain.
-- range: This is the width of the RACE array. If there are many categories or organisms that you want to sample from, increasing range might help you get more diverse results. Increasing the range is essentially free, but keeping it below 10000 may lead to faster processing times. 
-- reps: This is the depth of the RACE array. Increasing the reps will directly increase the time needed to process each input sequence, but you will be much less likely to accidentally discard a rare sequence. Typical values for reps are between 10 and 1000. 
-- hashes: This is the number of LSH functions we use for each row of the RACE array. Increasing this will directly increase the processing time but may also let you differentiate between sequences that are closer together in terms of edit distance. We recommend using only 1 hash. 
-- k: This is the size of each k-mer that is fed to the LSH function (MinHash). Increasing k means that we can differentiate between more similar sequences. To differentiate between species in metagenomic studies, we found that k = 16 is a good choice. If you want to differentiate between mutations or organisms within the same species, try a larger value of k. 
+- tau: This is the threshold for whether we should keep a new sequence or not. Increasing tau means that we will keep more sequences. Typical values for tau are between 0.1 and 100.0, depending on the size of the sample you wish to retain.
+- range: This is the width (B) of the RACE array. If there are many categories or organisms that you want to sample from, increasing range might help you get more diverse results. Increasing the range is essentially free, but keeping it below 10000 may lead to faster processing times. 
+- reps: This is the depth (R) of the RACE array. Increasing the reps will directly increase the time needed to process each input sequence, but you will be much less likely to accidentally discard a rare sequence. Typical values for reps are between 10 and 1000. 
+- hashes: This is the number (n) of LSH functions we use for each row of the RACE array. Increasing this will directly increase the processing time but may also let you differentiate between sequences that are closer together in terms of edit distance. We recommend using only 1 hash. 
+- k: This is the size (k) of each k-mer that is fed to the LSH function (MinHash). Increasing k means that we can differentiate between more similar sequences. To differentiate between species in metagenomic studies, we found that k = 16 is a good choice. If you want to differentiate between mutations or organisms within the same species, try a larger value of k. 
 
 ### Troubleshooting
 If it seems like RACE isn't returning very good samples, try increasing k and increase the range. If RACE isn't returning enough samples, try increasing tau. If RACE is returning too many samples and you have already tried reducing tau, increase the reps. A more in-depth explanation of the algorithm is available in our paper. Feel free to contact the authors with any questions.
