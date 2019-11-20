@@ -21,11 +21,11 @@ We use the RACE data structure, which is an efficient way to estimate kernel den
 ### Algorithm 
 RACE consists of a (B x R) array of integer counters and R different LSH functions. RACE acts as an online filter that dynamically keeps or discards sequences from a data stream. When a new sequence arrives, we hash the sequence using the R LSH functions to get R different hash values, which we use as a set of indices. We look up the integer counters at each index and take the average. The average is a *kernel density estimate*, or a measure of how many similar sequences we have seen so far. If the average is larger than a threshold, we discard the sequence since we have seen similar sequences. Otherwise, we keep the sequence. 
 
-![RACE algorithm diagram](algorithm.png "RACE Algorithm")
+<img src="algorithm.png" alt="RACE Algorithm" width="800"/>
 
 We use MinHash as the LSH function. MinHash takes two parameters - the length of the kmer to hash (k) and the number of MinHash signatures to use (n). These parameters change the sensitivity of the algorithm. If you increase (k), the Jaccard similarity between two sequences goes down. If you increase (n), RACE will become more sensitive to similarity differences. While increasing both parameters causes RACE to save more sequences, this happens for different reasons: For k, we change the interpretation of the input data while for n, we change the sensitivity of RACE to similarity differences. 
 
-![MinHash algorithm diagram](sequence_minhash.png "MinHash on sequences")
+<img src="sequence_minhash.png" alt="MinHash Algorithm" width="200"/>
 
 
 ### Hyperparameters
