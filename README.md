@@ -18,6 +18,13 @@ The Makefile should produce build and bin directories and output the executable 
 ## Algorithm and Hyperparameters
 We use the RACE data structure, which is an efficient way to estimate kernel densities on streaming data. RACE is a small 2D array of integer counters indexed by a LSH function. These counters can tell whether we have already seen data that is similar to a new sequence. The key idea is that we only store sequences if we haven't seen something similar before. This gives us a diverse sample. 
 
+### Algorithm 
+RACE consists of an array of integer counters. These counters 
+
+
+![RACE algorithm diagram](algorithm.png "RACE Algorithm")
+
+
 There are a couple of hyperparameters that you may want to change: 
 
 - tau: This is a threshold for whether we should keep a new sequence or not. Increasing tau means that we will keep more sequences. Typical values for tau are between 0.1 and 100.0, depending on the size of the sample you wish to retain.
