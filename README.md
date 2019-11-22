@@ -6,7 +6,7 @@ This repository implements a one-pass diversity sampling algorithm for DNA seque
 
 This is interesting if you want to quickly estimate the biodiversity of a metagenomic sample. Since different organisms often have sufficiently different sequences, our tool can ensure that each organism is represented using only a few reads. In some cases, the data reduction can be quite dramatic - in one of our experiments, RACE only needed 5% of the reads to identify 95% of the species that were present. RACE is particularly good at finding species that occur very rarely since there is a very high probability that RACE will keep an unusual or unique sequence. Most other methods cannot make this guarantee without returning very large samples. 
 
-We tested RACE on human microbiome metagenomics data, but the tool should also work well for downsampling from other categories of labeled genetic sequences (The labels could be chromosomes, genera, classes of bacteria, etc), provided the sequences in each category are different enough. In a nutshell, our method attempts to save a set of sequences that maximizes genetic diversity. 
+We tested RACE on human microbiome metagenomics data, but the tool should also work well for downsampling from other categories of labeled genetic sequences (The labels could be OTUs, species, genera, classes of bacteria, etc), provided the sequences in each category are different enough. In a nutshell, our method attempts to save a set of sequences that maximizes sequence diversity. 
 
 ## Installation
 The algorithm is implemented as a command line tool written in C++. It takes in a fasta or fastq file, downsamples the file using the RACE method, and outputs a fasta or fastq file of diverse sequences. To compile the tool, clone the repo and 
