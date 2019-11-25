@@ -81,7 +81,7 @@ Process paired-end read files using the "PE" flag. In this case, RACE needs two 
 If your reads are interleaved (i.e. the file alternately lists the forward and backward reads), then you can specify the "I" flag. RACE will decide whether to keep each pair of sequences based on the the first sequence. You only need to specify one input file and one output file. 
 
 ## Contact 
-For questions about installing or using this software, fill out an issue on GitHub and we'll do our best to help. For questions about the RACE algorithm, contact Benjamin Coleman at Rice University. If you use this software, please cite our paper. 
+For questions about installing or using this software, fill out an issue on GitHub and we'll do our best to help. For questions about the RACE algorithm, contact Benjamin Coleman at Rice University. If you use this software, please cite our paper. RACE is released under the MIT License. 
 
 
 
