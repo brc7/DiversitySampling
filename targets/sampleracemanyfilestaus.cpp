@@ -242,7 +242,7 @@ int main(int argc, char **argv){
 		std::string file_extension = "";
 		size_t idx = filename.rfind('.',filename.length());
 		if (idx != std::string::npos){
-			file_extension = filename.substr(idx+1, filename.length() - idx);
+			file_extension = filename1.substr(idx+1, filename.length() - idx);
 		} else {
 			std::cerr<<"Input file " << filename1 << " does not appear to have any file extension."<<std::endl;
 			continue;
