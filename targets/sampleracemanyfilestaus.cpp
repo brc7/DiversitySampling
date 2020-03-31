@@ -240,7 +240,7 @@ int main(int argc, char **argv){
 		// determine file extension. Only checks for first file for paired-end reads.
 		std::string filename1(filelist1[i]);
 		std::string file_extension = "";
-		size_t idx = filename.rfind('.',filename.length());
+		size_t idx = filename1.rfind('.',filename.length());
 		if (idx != std::string::npos){
 			file_extension = filename1.substr(idx+1, filename.length() - idx);
 		} else {
