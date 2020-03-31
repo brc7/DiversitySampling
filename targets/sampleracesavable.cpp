@@ -293,7 +293,7 @@ int main(int argc, char **argv){
     while(datastream1);
 
 	std::filebuf fb;
-	if (fb.open (savefile,std::ios::in))
+	if (fb.open (savefile,std::ios::out))
 	{
 		std::ostream os(&fb);
 		sketch.serialize(os);
