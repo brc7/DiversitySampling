@@ -93,6 +93,12 @@ int main(int argc, char **argv){
         return -1;
     }
 
+    // Default values
+	int race_range = 10000;
+	int race_repetitions = 10;
+	int hash_power = 1;
+	int kmer_k = 16;
+
 	RACE sketch;
 
     std::string savefile(argv[3]);
@@ -124,6 +130,25 @@ int main(int argc, char **argv){
 		std::cerr<<"The savefile must have a .bin extension."<<std::endl;
 		return -1;
 	}
+
+    // determine file extension
+    std::string filename(argv[4]);
+    std::string file_extension = "";
+    size_t idx = filename.rfind('.',filename.length());
+    if (file_extension == "fq"){
+        file_extension = "fastq";
+    }
+    if (idx != std::string::npos){
+        file_extension = filename.substr(idx+1, filename.length() - idx);
+    } else {
+        std::cerr<<"Input file does not appear to have any file extension."<<std::endl;
+        return -1;
+    }
+    if (file_extension != "fasta" && file_extension != "fastq"){
+        std::cerr<<"Unknown file extension: "<<file_extension<<std::endl;
+        std::cerr<<"Please specify either a file with the .fasta or .fastq extension."<<std::endl;
+        return -1;
+    }
 
 	// open the correct file streams given the format
     std::ifstream datastream1;
@@ -167,31 +192,7 @@ int main(int argc, char **argv){
 		}
     }
 
-    // determine file extension
-    std::string filename(argv[4]);
-    std::string file_extension = "";
-    size_t idx = filename.rfind('.',filename.length());
-    if (file_extension == "fq"){
-        file_extension = "fastq"; 
-    }
-    if (idx != std::string::npos){
-        file_extension = filename.substr(idx+1, filename.length() - idx); 
-    } else {
-        std::cerr<<"Input file does not appear to have any file extension."<<std::endl; 
-        return -1; 
-    }
-    if (file_extension != "fasta" && file_extension != "fastq"){
-        std::cerr<<"Unknown file extension: "<<file_extension<<std::endl; 
-        std::cerr<<"Please specify either a file with the .fasta or .fastq extension."<<std::endl; 
-        return -1; 
-    }
-
     // OPTIONAL ARGUMENTS
-    int race_range = 10000;
-    int race_repetitions = 10;
-    int hash_power = 1;
-    int kmer_k = 16;
-
     for (int i = 0; i < argc; ++i){
         if (std::strcmp("--range",argv[i]) == 0){
             if ((i+1) < argc){
