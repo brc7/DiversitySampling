@@ -161,7 +161,7 @@ int main(int argc, char **argv){
 			std::string filename = baseoutputfilename;
 			filename += "-";
 			filename += std::to_string(taus[i]);
-			filename += file_extension;
+			filename += "." + file_extension;
 			std::ofstream s(filename);
 			samplestreamvector1.push_back(std::move(s));
 		}
