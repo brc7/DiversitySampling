@@ -180,8 +180,10 @@ int main(int argc, char **argv){
 			filename2 += std::to_string(taus[i]);
 			filename1 += file_extension;
 			filename2 += file_extension;
-			std::ofstream s1(filename1);
-			std::ofstream s2(filename2);
+			std::ofstream s1;
+			std::ofstream s2;
+			s1.open(filename1);
+			s2.open(filename2);
 			samplestreamvector1.push_back(std::move(s1));
 			samplestreamvector2.push_back(std::move(s2));
 		}
