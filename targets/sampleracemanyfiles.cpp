@@ -42,7 +42,7 @@ int main(int argc, char **argv){
         std::clog<<"Positional arguments: "<<std::endl; 
         std::clog<<"tau: Floating point RACE sampling thresholds. Roughly determines how many samples you will store. You may specify this in scientific notation (i.e. 10e-6)"<<std::endl;
         std::clog<<"format: Either PE, SE, or I for paired-end, single-end, and interleaved paired reads"<<std::endl; 
-        std::clog<<"input: path to input data file (.fastq or .fasta extension). For PE format, specify two files."<<std::endl; 
+        std::clog<<"input: path to text file containing working directory of read files followed by names of the read files to be sampled (.fastq or .fasta extension). For PE format, specify two filenames, one containing \"_1\" and the other \"_2\", for each read."<<std::endl;
         std::clog<<"output: path to output sample file (same extension as input). For PE format, specify two files."<<std::endl; 
         
         std::clog<<"Optional arguments: "<<std::endl; 
@@ -102,7 +102,7 @@ int main(int argc, char **argv){
 //    filelist2.clear();
 //    for (int i = 593590; i <= 59)
 
-	// TODO: May need to adjust to new multi file structure.
+	// TODO: May need to adjust to new multi file structure. Do for every file.
     // determine file extension
     std::string filename(argv[3]); 
     std::string file_extension = "";
@@ -203,7 +203,7 @@ int main(int argc, char **argv){
 			int c = datastream1.peek();
 			if (c == EOF) {
 				if (datastream1.eof()){
-					continue;
+					break;
 				}
 			}
 

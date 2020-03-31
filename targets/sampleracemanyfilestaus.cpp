@@ -41,8 +41,8 @@ int main(int argc, char **argv){
         std::clog<<" [--range race_range] [--reps race_reps] [--hashes n_minhashes] [-k kmer_size]"<<std::endl; 
         std::clog<<"Positional arguments: "<<std::endl; 
         std::clog<<"tau: csv list of one or more floating point RACE sampling thresholds. Roughly determines how many samples you will store. You may specify this in scientific notation (i.e. 10e-6). Note: Don't include spaces between the elements."<<std::endl;
-        std::clog<<"format: Either PE, SE, or I for paired-end, single-end, and interleaved paired reads"<<std::endl; 
-        std::clog<<"input: path to input data file (.fastq or .fasta extension). For PE format, specify two files."<<std::endl; 
+        std::clog<<"format: Either PE, SE, or I for paired-end, single-end, and interleaved paired reads"<<std::endl;
+		std::clog<<"input: path to text file containing working directory of read files followed by names of the read files to be sampled (.fastq or .fasta extension). For PE format, specify two filenames, one containing \"_1\" and the other \"_2\", for each read."<<std::endl;
         std::clog<<"output: path to output sample file (same extension as input). For PE format, specify two files."<<std::endl; 
         
         std::clog<<"Optional arguments: "<<std::endl; 
@@ -80,9 +80,9 @@ int main(int argc, char **argv){
         format = 2; 
     } else if (std::strcmp("PE",argv[2]) == 0){
         format = 3; 
-        if (argc < 7){
-            std::cerr<<"For paired-end reads, please specify the input and output files as:"<<std::endl; 
-            std::cerr<<"input1.fastq input2.fastq output1.fastq output2.fastq"<<std::endl; 
+        if (argc < 6){
+            std::cerr<<"For paired-end reads, please specify the output files as:"<<std::endl;
+            std::cerr<<"output1.fastq output2.fastq"<<std::endl;
             return -1; 
         }
     } else {
@@ -102,7 +102,25 @@ int main(int argc, char **argv){
 	std::vector<std::ofstream> samplestreamvector2;
 
     if (format != 3){
-    	filelist1.push_back(argv[3]);
+
+    	// add input read filenames to the filelist vector.
+    	datastream1.open(argv[3]);
+		std::string line;
+    	std::string path = ""; // assume read files are in the same directory by default.
+		do {
+			int c = datastream1.peek();
+			if (c == EOF) {
+				if (datastream1.eof()){
+					break;
+				}
+			}
+			std::getline(datastream1, line);
+			if (line.at(0) == '/' && line.rfind('.',line.length()) == std::string::npos) {path = line;}
+			else if (line.rfind('.',line.length()) != std::string::npos) {filelist1.push_back(path+"/"+line);}
+			else {std::cerr<<"Line \""<<line<<"\" not recognized. If it is a filename, it has to end with a file extension. If it is a path it has to start with a \"/\"."<<std::endl;}
+		} while (datastream1);
+
+		// add output file streams
 		std::string baseoutputfilename(argv[4]);
 		for(size_t i = 0; i < taus.size(); i++){
 			std::string filename = baseoutputfilename;
@@ -113,10 +131,33 @@ int main(int argc, char **argv){
 			samplestreamvector1.push_back(std::move(s));
 		}
     } else {
-		filelist1.push_back(argv[3]);
-		filelist2.push_back(argv[4]);
-		std::string baseoutputfilename1(argv[5]);
-		std::string baseoutputfilename2(argv[6]);
+
+		// add input read filenames to the filelist vector.
+		datastream1.open(argv[3]);
+		std::string line;
+		std::string path = ""; // assume read files are in the same directory by default.
+		do {
+			int c = datastream1.peek();
+			if (c == EOF) {
+				if (datastream1.eof()){
+					break;
+				}
+			}
+			std::getline(datastream1, line);
+			if (line.at(0) == '/' && line.rfind('.',line.length()) == std::string::npos) {
+				path = line;
+			} else if (line.rfind('_1',line.length()) != std::string::npos && line.rfind('.',line.length()) != std::string::npos) {
+				filelist1.push_back(path+"/"+line);
+			} else if (line.rfind('_2',line.length()) != std::string::npos && line.rfind('.',line.length()) != std::string::npos) {
+				filelist2.push_back(path+"/"+line);
+			} else {
+				std::cerr<<"Line \""<<line<<"\" not recognized. If it is a filename, it has to end with a file extension and either \"_1\" or \"_2\" for paired end reads. If it is a path it has to start with a \"/\"."<<std::endl;
+			}
+		} while (datastream1);
+
+		// add output file streams
+		std::string baseoutputfilename1(argv[4]);
+		std::string baseoutputfilename2(argv[5]);
 		for(size_t i = 0; i < taus.size(); i++){
 			std::string filename1 = baseoutputfilename1;
 			std::string filename2 = baseoutputfilename2;
@@ -131,26 +172,6 @@ int main(int argc, char **argv){
 			samplestreamvector1.push_back(std::move(s1));
 			samplestreamvector2.push_back(std::move(s2));
 		}
-    }
-
-    // TODO: May need to adjust to new multi file structure.
-    // determine file extension.
-    std::string filename(argv[3]); 
-    std::string file_extension = "";
-    size_t idx = filename.rfind('.',filename.length()); 
-    if (idx != std::string::npos){
-        file_extension = filename.substr(idx+1, filename.length() - idx);
-    } else {
-        std::cerr<<"Input file does not appear to have any file extension."<<std::endl;
-        return -1;
-    }
-    if (file_extension == "fq"){
-        file_extension = "fastq"; 
-    }
-    if (file_extension != "fasta" && file_extension != "fastq"){
-        std::cerr<<"Unknown file extension: "<<file_extension<<std::endl; 
-        std::cerr<<"Please specify either a file with the .fasta or .fastq extension."<<std::endl; 
-        return -1; 
     }
 
     // OPTIONAL ARGUMENTS
@@ -216,16 +237,47 @@ int main(int argc, char **argv){
     RACE sketch = RACE(race_repetitions,race_range); 
 
     for (int i = 0; i < filelist1.size(); ++i) {
+		// determine file extension. Only checks for first file for paired-end reads.
+		std::string filename1(filelist1[i]);
+		std::string file_extension = "";
+		size_t idx = filename.rfind('.',filename.length());
+		if (idx != std::string::npos){
+			file_extension = filename.substr(idx+1, filename.length() - idx);
+		} else {
+			std::cerr<<"Input file " << filename1 << " does not appear to have any file extension."<<std::endl;
+			continue;
+		}
+		if (file_extension == "fq"){
+			file_extension = "fastq";
+		}
+		if (file_extension != "fasta" && file_extension != "fastq"){
+			std::cerr<<"Unknown file extension: "<<file_extension<<std::endl;
+			std::cerr<<"Please specify either a file with the .fasta or .fastq extension."<<std::endl;
+			continue;
+		}
+
+		// Reset and open appropriate datastreams according to format
 		switch(format){
 			case 1: // 1 = unpaired
-				datastream1.open(filelist1[0]);
+				datastream1.close();
+				datastream1.clear();
+				datastream1.open(filelist1[i]);
+				std::cout<<"Processing "<<filelist1[i]<<std::endl;
 				break;
 			case 2: // 2 = interleaved
-				datastream1.open(filelist1[0]);
+				datastream1.close();
+				datastream1.clear();
+				datastream1.open(filelist1[i]);
+				std::cout<<"Processing "<<filelist1[i]<<std::endl;
 				break;
 			case 3: // 3 = paired
-				datastream1.open(filelist1[0]);
-				datastream2.open(filelist2[0]);
+				datastream1.close();
+				datastream1.clear();
+				datastream1.open(filelist1[i]);
+				datastream2.close();
+				datastream2.clear();
+				datastream2.open(filelist2[i]);
+				std::cout<<"Processing "<<filelist1[i]<<" and "<<filelist2[i]<<std::endl;
 				break;
 		}
 
@@ -234,7 +286,7 @@ int main(int argc, char **argv){
 			int c = datastream1.peek();
 			if (c == EOF) {
 				if (datastream1.eof()){
-					continue;
+					break;
 				}
 			}
 
