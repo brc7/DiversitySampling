@@ -178,8 +178,8 @@ int main(int argc, char **argv){
 			filename2 += "-";
 			filename1 += std::to_string(taus[i]);
 			filename2 += std::to_string(taus[i]);
-			filename1 += file_extension;
-			filename2 += file_extension;
+			filename1 += "." + file_extension;
+			filename2 += "." + file_extension;
 			std::ofstream s1;
 			std::ofstream s2;
 			s1.open(filename1);
