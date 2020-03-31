@@ -300,6 +300,7 @@ int main(int argc, char **argv){
 	{
 		std::ostream os(&fb);
 		sketch.serialize(os);
+		std::cout<<"Serialized!"<<std::endl;
 	} else {
 		std::cerr<<"Failed to serialize RACE structure"<<std::endl;
 		return -1;
