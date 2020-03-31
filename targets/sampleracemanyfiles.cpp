@@ -78,8 +78,8 @@ int main(int argc, char **argv){
         return -1;
     }
 
-    std::vector<string> filelist1;
-	std::vector<string> filelist2;
+    std::vector<std::string> filelist1;
+	std::vector<std::string> filelist2;
 
     // open the correct file streams given the format
     std::ifstream datastream1;
