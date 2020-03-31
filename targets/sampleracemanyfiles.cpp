@@ -88,38 +88,50 @@ int main(int argc, char **argv){
     std::ofstream samplestream2;
 
     if (format != 3){
-    	filelist1.push_back(argv[3]);
+		// add input read filenames to the filelist vector.
+		datastream1.open(argv[3]);
+		std::string line;
+		std::string path = ""; // assume read files are in the same directory by default.
+		do {
+			int c = datastream1.peek();
+			if (c == EOF) {
+				if (datastream1.eof()){
+					break;
+				}
+			}
+			std::getline(datastream1, line);
+			if (line.at(0) == '/' && line.rfind('.',line.length()) == std::string::npos) {path = line;}
+			else if (line.rfind('.',line.length()) != std::string::npos) {filelist1.push_back(path+"/"+line);}
+			else {std::cerr<<"Line \""<<line<<"\" not recognized. If it is a filename, it has to end with a file extension. If it is a path it has to start with a \"/\"."<<std::endl;}
+		} while (datastream1);
+
         samplestream1.open(argv[4]);
     } else {
-		filelist1.push_back(argv[3]);
-		filelist2.push_back(argv[4]);
+		// add input read filenames to the filelist vector.
+		datastream1.open(argv[3]);
+		std::string line;
+		std::string path = ""; // assume read files are in the same directory by default.
+		do {
+			int c = datastream1.peek();
+			if (c == EOF) {
+				if (datastream1.eof()){
+					break;
+				}
+			}
+			std::getline(datastream1, line);
+			if (line.at(0) == '/' && line.rfind('.',line.length()) == std::string::npos) {
+				path = line;
+			} else if (line.rfind('_1',line.length()) != std::string::npos && line.rfind('.',line.length()) != std::string::npos) {
+				filelist1.push_back(path+"/"+line);
+			} else if (line.rfind('_2',line.length()) != std::string::npos && line.rfind('.',line.length()) != std::string::npos) {
+				filelist2.push_back(path+"/"+line);
+			} else {
+				std::cerr<<"Line \""<<line<<"\" not recognized. If it is a filename, it has to end with a file extension and either \"_1\" or \"_2\" for paired end reads. If it is a path it has to start with a \"/\"."<<std::endl;
+			}
+		} while (datastream1);
+
         samplestream1.open(argv[5]);
         samplestream2.open(argv[6]);
-    }
-
-    // Temporarily use hardcoded filenames for the experiment. Disregard the above.
-//    filelist1.clear();
-//    filelist2.clear();
-//    for (int i = 593590; i <= 59)
-
-	// TODO: May need to adjust to new multi file structure. Do for every file.
-    // determine file extension
-    std::string filename(argv[3]); 
-    std::string file_extension = "";
-    size_t idx = filename.rfind('.',filename.length()); 
-    if (idx != std::string::npos){
-        file_extension = filename.substr(idx+1, filename.length() - idx);
-    } else {
-        std::cerr<<"Input file does not appear to have any file extension."<<std::endl;
-        return -1;
-    }
-    if (file_extension == "fq"){
-        file_extension = "fastq"; 
-    }
-    if (file_extension != "fasta" && file_extension != "fastq"){
-        std::cerr<<"Unknown file extension: "<<file_extension<<std::endl; 
-        std::cerr<<"Please specify either a file with the .fasta or .fastq extension."<<std::endl; 
-        return -1; 
     }
 
     // OPTIONAL ARGUMENTS
@@ -185,16 +197,47 @@ int main(int argc, char **argv){
     RACE sketch = RACE(race_repetitions,race_range); 
 
     for (int i = 0; i < filelist1.size(); ++i) {
+		// determine file extension. Only checks for first file for paired-end reads.
+		std::string filename1(filelist1[i]);
+		std::string file_extension = "";
+		size_t idx = filename1.rfind('.',filename1.length());
+		if (idx != std::string::npos){
+			file_extension = filename1.substr(idx+1, filename1.length() - idx);
+		} else {
+			std::cerr<<"Input file " << filename1 << " does not appear to have any file extension."<<std::endl;
+			continue;
+		}
+		if (file_extension == "fq"){
+			file_extension = "fastq";
+		}
+		if (file_extension != "fasta" && file_extension != "fastq"){
+			std::cerr<<"Unknown file extension: "<<file_extension<<std::endl;
+			std::cerr<<"Please specify either a file with the .fasta or .fastq extension."<<std::endl;
+			continue;
+		}
+
+		// Reset and open appropriate datastreams according to format
 		switch(format){
 			case 1: // 1 = unpaired
-				datastream1.open(filelist1[0]);
+				datastream1.close();
+				datastream1.clear();
+				datastream1.open(filelist1[i]);
+				std::cout<<"Processing "<<filelist1[i]<<std::endl;
 				break;
 			case 2: // 2 = interleaved
-				datastream1.open(filelist1[0]);
+				datastream1.close();
+				datastream1.clear();
+				datastream1.open(filelist1[i]);
+				std::cout<<"Processing "<<filelist1[i]<<std::endl;
 				break;
 			case 3: // 3 = paired
-				datastream1.open(filelist1[0]);
-				datastream2.open(filelist2[0]);
+				datastream1.close();
+				datastream1.clear();
+				datastream1.open(filelist1[i]);
+				datastream2.close();
+				datastream2.clear();
+				datastream2.open(filelist2[i]);
+				std::cout<<"Processing "<<filelist1[i]<<" and "<<filelist2[i]<<std::endl;
 				break;
 		}
 
