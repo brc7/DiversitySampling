@@ -40,7 +40,7 @@ int main(int argc, char **argv){
         std::clog<<"samplerace <tau> <format> <input> <output>";
         std::clog<<" [--range race_range] [--reps race_reps] [--hashes n_minhashes] [-k kmer_size]"<<std::endl; 
         std::clog<<"Positional arguments: "<<std::endl; 
-        std::clog<<"tau: Floating point RACE sampling thresholds. Roughly determines how many samples you will store. You may specify this in scientific notation (i.e. 10e-6)"<<std::endl;
+        std::clog<<"tau: csv list of one or more floating point RACE sampling thresholds. Roughly determines how many samples you will store. You may specify this in scientific notation (i.e. 10e-6). Note: Don't include spaces between the elements."<<std::endl;
         std::clog<<"format: Either PE, SE, or I for paired-end, single-end, and interleaved paired reads"<<std::endl; 
         std::clog<<"input: path to input data file (.fastq or .fasta extension). For PE format, specify two files."<<std::endl; 
         std::clog<<"output: path to output sample file (same extension as input). For PE format, specify two files."<<std::endl; 
@@ -60,7 +60,19 @@ int main(int argc, char **argv){
 
 
     // POSITIONAL ARGUMENTS
-    double tau = std::stod(argv[1]);
+
+	// get set of taus
+	std::vector<double> taus;
+	std::stringstream ss(argv[1]); // get set of taus
+	double tau = 0;
+	while(ss >> tau){
+		if (tau <= 0){ std::cerr<<"Invalid value for parameter <tau>"<<std::endl; return -1; }
+		taus.push_back(tau);
+		if (ss.peek() == ',')
+			ss.ignore();
+	}
+	ss.clear();
+
     int format; // ENUM: 1 = unpaired, 2 = interleaved, 3 = paired
     if (std::strcmp("SE",argv[2]) == 0){
         format = 1;
@@ -83,27 +95,46 @@ int main(int argc, char **argv){
 
     // open the correct file streams given the format
     std::ifstream datastream1;
-    std::ofstream samplestream1;
     std::ifstream datastream2;
-    std::ofstream samplestream2;
+
+	// Create vector of ofstreams - one for each tau
+	std::vector<std::ofstream> samplestreamvector1;
+	std::vector<std::ofstream> samplestreamvector2;
 
     if (format != 3){
     	filelist1.push_back(argv[3]);
-        samplestream1.open(argv[4]);
+		std::string baseoutputfilename(argv[4]);
+		for(size_t i = 0; i < taus.size(); i++){
+			std::string filename = baseoutputfilename;
+			filename += "-";
+			filename += std::to_string(taus[i]);
+			filename += ".fastq";
+			std::ofstream s(filename);
+			samplestreamvector1.push_back(std::move(s));
+		}
     } else {
 		filelist1.push_back(argv[3]);
 		filelist2.push_back(argv[4]);
-        samplestream1.open(argv[5]);
-        samplestream2.open(argv[6]);
+		std::string baseoutputfilename1(argv[5]);
+		std::string baseoutputfilename2(argv[6]);
+		for(size_t i = 0; i < taus.size(); i++){
+			std::string filename1 = baseoutputfilename1;
+			std::string filename2 = baseoutputfilename2;
+			filename1 += "-";
+			filename2 += "-";
+			filename1 += std::to_string(taus[i]);
+			filename2 += std::to_string(taus[i]);
+			filename1 += ".fastq";
+			filename2 += ".fastq";
+			std::ofstream s1(filename1);
+			std::ofstream s2(filename2);
+			samplestreamvector1.push_back(std::move(s1));
+			samplestreamvector2.push_back(std::move(s2));
+		}
     }
 
-    // Temporarily use hardcoded filenames for the experiment. Disregard the above.
-//    filelist1.clear();
-//    filelist2.clear();
-//    for (int i = 593590; i <= 59)
-
-	// TODO: May need to adjust to new multi file structure.
-    // determine file extension
+    // TODO: May need to adjust to new multi file structure.
+    // determine file extension.
     std::string filename(argv[3]); 
     std::string file_extension = "";
     size_t idx = filename.rfind('.',filename.length()); 
@@ -164,7 +195,7 @@ int main(int argc, char **argv){
     }
 
     // Check if arguments are valid
-    if (tau <= 0){ std::cerr<<"Invalid value for parameter <tau>"<<std::endl; return -1; }
+    // Checking for taus is done when adding taus to the vector.
     if (race_range <= 0){ std::cerr<<"Invalid value for optional parameter --range"<<std::endl; return -1; }
     if (race_repetitions <= 0){ std::cerr<<"Invalid value for optional parameter --reps"<<std::endl; return -1; }
     if (hash_power <= 0){ std::cerr<<"Invalid value for optional parameter --hashes"<<std::endl; return -1; }
@@ -228,20 +259,21 @@ int main(int argc, char **argv){
 			// then simultaneously query and add
 			double KDE = sketch.query_and_add(rehashes);
 			// note: KDE is on a scale from [0,N] not the normalized interval [0,1]
-			if (KDE < tau){
-				// then keep this sample
-
-				switch(format){
-					case 1: // 1 = unpaired
-						samplestream1 << chunk1;
-						break;
-					case 2: // 2 = interleaved
-						samplestream1 << chunk1;
-						break;
-					case 3: // 3 = paired
-						samplestream1 << chunk1;
-						samplestream2 << chunk2;
-						break;
+			for(size_t i = 0; i < taus.size(); i++){
+				double tau = taus[i];
+				if (KDE < tau){
+					switch(format){
+						case 1: // 1 = unpaired
+							samplestreamvector1[i] << chunk1;
+							break;
+						case 2: // 2 = interleaved
+							samplestreamvector1[i] << chunk1;
+							break;
+						case 3: // 3 = paired
+							samplestreamvector1[i] << chunk1;
+							samplestreamvector2[i] << chunk2;
+							break;
+					}
 				}
 			}
 		}
