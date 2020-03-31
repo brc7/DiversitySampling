@@ -162,7 +162,8 @@ int main(int argc, char **argv){
 			filename += "-";
 			filename += std::to_string(taus[i]);
 			filename += "." + file_extension;
-			std::ofstream s(filename);
+			std::ofstream s;
+			s.open(filename);
 			samplestreamvector1.push_back(std::move(s));
 		}
     } else {
