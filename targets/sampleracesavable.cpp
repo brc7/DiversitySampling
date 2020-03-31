@@ -99,7 +99,7 @@ int main(int argc, char **argv){
 	int hash_power = 1;
 	int kmer_k = 16;
 
-	RACE sketch;
+	RACE sketch = RACE(race_repetitions,race_range);
 
     std::string savefile(argv[3]);
 	std::string savefile_extension = "";
@@ -107,7 +107,7 @@ int main(int argc, char **argv){
     if (save_idx != std::string::npos) {
 		savefile_extension = savefile.substr(save_idx+1, savefile.length() - save_idx);
     } else {
-		std::cerr<<"The savefile " << filename1 << " does not appear to have any file extension."<<std::endl;
+		std::cerr<<"The savefile " << savefile << " does not appear to have any file extension."<<std::endl;
 		return -1;
 	}
 	if (savefile_extension == "bin"){
@@ -116,16 +116,11 @@ int main(int argc, char **argv){
 		{
 			std::istream is(&fb);
 			int c = is.peek();
-			if (c == EOF) {
-				sketch = RACE(race_repetitions,race_range);
-			} else {
-				sketch = RACE::deserialize(is);
+			if (c != EOF) {
+				sketch.deserialize(is);
 			}
 			fb.close();
-		} else {
-			sketch = RACE(race_repetitions,race_range);
 		}
-
 	} else {
 		std::cerr<<"The savefile must have a .bin extension."<<std::endl;
 		return -1;
