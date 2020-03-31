@@ -126,7 +126,7 @@ int main(int argc, char **argv){
 			std::string filename = baseoutputfilename;
 			filename += "-";
 			filename += std::to_string(taus[i]);
-			filename += ".fastq";
+			filename += ".fastq"; // just realized this should depend on input type
 			std::ofstream s(filename);
 			samplestreamvector1.push_back(std::move(s));
 		}
@@ -165,7 +165,7 @@ int main(int argc, char **argv){
 			filename2 += "-";
 			filename1 += std::to_string(taus[i]);
 			filename2 += std::to_string(taus[i]);
-			filename1 += ".fastq";
+			filename1 += ".fastq"; // just realized this should depend on input type
 			filename2 += ".fastq";
 			std::ofstream s1(filename1);
 			std::ofstream s2(filename2);

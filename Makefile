@@ -12,7 +12,7 @@ BIN_DIR = bin/
 INC := -I Include
 
 # List of target executables
-TARGETS = samplerace.cpp sampleracemanyfiles.cpp sampleracemanyfilestaus.cpp
+TARGETS = samplerace.cpp sampleracemanyfiles.cpp sampleracemanyfilestaus.cpp sampleracesavable.cpp
 TARGETS_DIR = targets/
 
 # Everything beyond this point is determined from previous declarations, don't modify
