@@ -112,7 +112,7 @@ int main(int argc, char **argv){
 	}
 	if (savefile_extension == "bin"){
 		std::filebuf fb;
-		if (fb.open (savefile,std::ios::in))
+		if (fb.open (savefile,std::ios::in | std::ios::binary))
 		{
 			std::istream is(&fb);
 			int c = is.peek();
@@ -296,7 +296,7 @@ int main(int argc, char **argv){
     while(datastream1);
 
 	std::filebuf fb;
-	if (fb.open (savefile,std::ios::out))
+	if (fb.open (savefile,std::ios::out | std::ios::binary))
 	{
 		std::ostream os(&fb);
 		sketch.serialize(os);
