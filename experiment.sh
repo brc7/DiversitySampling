@@ -31,7 +31,7 @@ for dir in 0 1 2 3 4 5 6 7 8 9; do
   mkdir temp
   for f in *.gz; do
     STEM=$(basename "${f}" .gz)
-    gunzip -c "${f}"
+    gunzip "${f}"
     mv "${STEM}" /temp/"${STEM}"
   done
   cd temp
