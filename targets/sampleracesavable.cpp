@@ -99,8 +99,10 @@ int main(int argc, char **argv){
 	int hash_power = 1;
 	int kmer_k = 16;
 
+
 	RACE sketch = RACE(race_repetitions,race_range);
 
+	// Open savefile if it exists, or use the new sketch made above.
     std::string savefile(argv[3]);
 	std::string savefile_extension = "";
     size_t save_idx = savefile.rfind('.',savefile.length());
@@ -125,6 +127,8 @@ int main(int argc, char **argv){
 		std::cerr<<"The savefile must have a .bin extension."<<std::endl;
 		return -1;
 	}
+
+	sketch.pprint(std::cout, 3, true);
 
     // determine file extension
     std::string filename(argv[4]);
@@ -300,7 +304,8 @@ int main(int argc, char **argv){
 	{
 		std::ostream os(&fb);
 		sketch.serialize(os);
-		std::cout<<"Serialized!"<<std::endl;
+		std::cout<<"Serialized this RACE:"<<std::endl;
+		sketch.pprint(std::cout, 3, true);
 	} else {
 		std::cerr<<"Failed to serialize RACE structure"<<std::endl;
 		return -1;
