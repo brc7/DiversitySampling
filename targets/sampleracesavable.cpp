@@ -228,6 +228,9 @@ int main(int argc, char **argv){
 			int c = is.peek();
 			if (c != EOF) {
 				sketch.deserialize(is);
+				std::cout<<"Using this saved RACE:"<<std::endl;
+			} else {
+				std::cout<<"Creating new RACE."<<std::endl;
 			}
 			fb.close();
 		}
