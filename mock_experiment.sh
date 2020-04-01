@@ -6,7 +6,7 @@ savefile="/home/bg31/firstRaceProject/DiversitySampling/experimentsavefile.bin"
 taus="1,1.7,2.8,4.5,7.7,12.9,21.5,35.9,59.9,100"
 outputs="/home/bg31/firstRaceProject/DiversitySampling/results/experiment_sample_1 /home/bg31/firstRaceProject/DiversitySampling/results/experiment_sample_2"
 
-for dir in 0; do
+for dir in 0 1; do
   echo working on part ${dir}
   cd ${directorypath}${dir}
   mkdir ${temp}
