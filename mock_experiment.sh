@@ -8,13 +8,9 @@ for dir in 0; do
   echo working on part ${dir}
   cd ${directorypath}${dir}
   mkdir temp
-  for f in *.gz; do
-    STEM=$(basename "${f}" .gz)
-    gunzip "${f}"
-    ls
-    mv "${STEM}" /temp/
-  done
+  cp * temp/
   cd temp
+  gunzip *
   for f1 in *_1_reads.fq; do
     f2=${f:0:10}_2_reads.fq
     path="${directorypath}${dir}/"
