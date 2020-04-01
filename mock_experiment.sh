@@ -8,7 +8,7 @@ for dir in 0; do
   echo working on part ${dir}
   cd ${directorypath}${dir}
   mkdir temp
-  find . -name '*.gz' -exec cp {} temp/{}\;
+  find . -name '*.gz' -exec cp {} temp/{} \;
   cd temp
   gunzip *
   for f1 in *_1.fastq; do
