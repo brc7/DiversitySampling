@@ -21,7 +21,7 @@
   # Exit directory
 timing_file = "/home/bg31/firstRaceProject/DiversitySampling/results/experiment_timing.txt"
 directorypath = "/home/bg31/firstRaceProject/DiversitySampling/part_"
-race = "/home/bg31/firstRaceProject/DiversitySampling/bin/sampleracesavable.cpp"
+race = "/home/bg31/firstRaceProject/DiversitySampling/bin/sampleracesavable"
 taus = "1,1.7,2.8,4.5,7.7,12.9,21.5,35.9,59.9,100"
 outputs = "/home/bg31/firstRaceProject/DiversitySampling/results/experiment_sample_1 /home/bg31/firstRaceProject/DiversitySampling/results/experiment_sample_2"
 
