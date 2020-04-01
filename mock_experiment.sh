@@ -1,6 +1,7 @@
 timing_file="/home/bg31/firstRaceProject/DiversitySampling/results/experiment_timing.txt"
 directorypath="/home/bg31/firstRaceProject/DiversitySampling/part_"
 race="/home/bg31/firstRaceProject/DiversitySampling/bin/sampleracesavable"
+temp="/home/bg31/firstRaceProject/DiversitySampling/temp"
 savefile="/home/bg31/firstRaceProject/DiversitySampling/experimentsavefile.bin"
 taus="1,1.7,2.8,4.5,7.7,12.9,21.5,35.9,59.9,100"
 outputs="/home/bg31/firstRaceProject/DiversitySampling/results/experiment_sample_1 /home/bg31/firstRaceProject/DiversitySampling/results/experiment_sample_2"
@@ -8,12 +9,9 @@ outputs="/home/bg31/firstRaceProject/DiversitySampling/results/experiment_sample
 for dir in 0; do
   echo working on part ${dir}
   cd ${directorypath}${dir}
-  pwd  
-  mkdir temp
-  find . -maxdepth 1 -name '*.gz' -exec cp {} temp/{} \;
-  cd temp
-  pwd
-  ls
+  mkdir ${temp}
+  find . -maxdepth 1 -name '*.gz' -exec cp {} ${temp}/{} \;
+  cd ${temp}
   gunzip *
   for f1 in *_1.fastq; do
     f2=${f1:0:13}_2.fastq
@@ -22,7 +20,5 @@ for dir in 0; do
     echo ${mytime} >> ${timing_file}
   done
   cd ..
-  pwd
-  rm -r temp
-  ls
+  rm -r ${temp}
 done
