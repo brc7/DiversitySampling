@@ -93,43 +93,6 @@ int main(int argc, char **argv){
         return -1;
     }
 
-    // Default values
-	int race_range = 10000;
-	int race_repetitions = 10;
-	int hash_power = 1;
-	int kmer_k = 16;
-
-
-	RACE sketch = RACE(race_repetitions,race_range);
-
-	// Open savefile if it exists, or use the new sketch made above.
-    std::string savefile(argv[3]);
-	std::string savefile_extension = "";
-    size_t save_idx = savefile.rfind('.',savefile.length());
-    if (save_idx != std::string::npos) {
-		savefile_extension = savefile.substr(save_idx+1, savefile.length() - save_idx);
-    } else {
-		std::cerr<<"The savefile " << savefile << " does not appear to have any file extension."<<std::endl;
-		return -1;
-	}
-	if (savefile_extension == "bin"){
-		std::filebuf fb;
-		if (fb.open (savefile,std::ios::in | std::ios::binary))
-		{
-			std::istream is(&fb);
-			int c = is.peek();
-			if (c != EOF) {
-				sketch.deserialize(is);
-			}
-			fb.close();
-		}
-	} else {
-		std::cerr<<"The savefile must have a .bin extension."<<std::endl;
-		return -1;
-	}
-
-	sketch.pprint(std::cout, 3, true);
-
     // determine file extension
     std::string filename(argv[4]);
     std::string file_extension = "";
@@ -194,50 +157,88 @@ int main(int argc, char **argv){
 		}
     }
 
-    // OPTIONAL ARGUMENTS
-    for (int i = 0; i < argc; ++i){
-        if (std::strcmp("--range",argv[i]) == 0){
-            if ((i+1) < argc){
-                race_range = std::stoi(argv[i+1]);
-            } else {
-                std::cerr<<"Invalid argument for optional parameter --range"<<std::endl; 
-                return -1;
-            }
-        }
-        if (std::strcmp("--reps",argv[i]) == 0){
-            if ((i+1) < argc){
-                race_repetitions = std::stoi(argv[i+1]);
-            } else {
-                std::cerr<<"Invalid argument for optional parameter --reps"<<std::endl; 
-                return -1;
-            }
-        }
-        if (std::strcmp("--hashes",argv[i]) == 0){
-            if ((i+1) < argc){
-                hash_power = std::stoi(argv[i+1]);
-            } else {
-                std::cerr<<"Invalid argument for optional parameter --hashes"<<std::endl; 
-                return -1;
-            }
-        }
-        if (std::strcmp("--k",argv[i]) == 0){
-            if ((i+1) < argc){
-                kmer_k = std::stoi(argv[i+1]);
-            } else {
-                std::cerr<<"Invalid argument for optional parameter --k"<<std::endl; 
-                return -1;
-            }
-        }
-    }
+	// Default values
+	int race_range = 10000;
+	int race_repetitions = 10;
+	int hash_power = 1;
+	int kmer_k = 16;
 
-    // Check if arguments are valid
-	// Checking for taus is done when adding taus to the vector.
-    if (race_range <= 0){ std::cerr<<"Invalid value for optional parameter --range"<<std::endl; return -1; }
-    if (race_repetitions <= 0){ std::cerr<<"Invalid value for optional parameter --reps"<<std::endl; return -1; }
-    if (hash_power <= 0){ std::cerr<<"Invalid value for optional parameter --hashes"<<std::endl; return -1; }
-    if (kmer_k <= 0){ std::cerr<<"Invalid value for optional parameter --k"<<std::endl; return -1; }
+	// OPTIONAL ARGUMENTS
+	// Parsed here as it is required to make race sketch
+	for (int i = 0; i < argc; ++i){
+		if (std::strcmp("--range",argv[i]) == 0){
+			if ((i+1) < argc){
+				race_range = std::stoi(argv[i+1]);
+			} else {
+				std::cerr<<"Invalid argument for optional parameter --range"<<std::endl;
+				return -1;
+			}
+		}
+		if (std::strcmp("--reps",argv[i]) == 0){
+			if ((i+1) < argc){
+				race_repetitions = std::stoi(argv[i+1]);
+			} else {
+				std::cerr<<"Invalid argument for optional parameter --reps"<<std::endl;
+				return -1;
+			}
+		}
+		if (std::strcmp("--hashes",argv[i]) == 0){
+			if ((i+1) < argc){
+				hash_power = std::stoi(argv[i+1]);
+			} else {
+				std::cerr<<"Invalid argument for optional parameter --hashes"<<std::endl;
+				return -1;
+			}
+		}
+		if (std::strcmp("--k",argv[i]) == 0){
+			if ((i+1) < argc){
+				kmer_k = std::stoi(argv[i+1]);
+			} else {
+				std::cerr<<"Invalid argument for optional parameter --k"<<std::endl;
+				return -1;
+			}
+		}
+	}
 
-    // done parsing information. Begin RACE algorithm: 
+	// Check if arguments are valid
+	// Checking for taus is done above when adding output file streams to a vector.
+	if (race_range <= 0){ std::cerr<<"Invalid value for optional parameter --range"<<std::endl; return -1; }
+	if (race_repetitions <= 0){ std::cerr<<"Invalid value for optional parameter --reps"<<std::endl; return -1; }
+	if (hash_power <= 0){ std::cerr<<"Invalid value for optional parameter --hashes"<<std::endl; return -1; }
+	if (kmer_k <= 0){ std::cerr<<"Invalid value for optional parameter --k"<<std::endl; return -1; }
+
+	// Create new RACE sketch.
+	RACE sketch = RACE(race_repetitions,race_range);
+
+	// Open savefile if it exists, or use the new sketch made above.
+	std::string savefile(argv[3]);
+	std::string savefile_extension = "";
+	size_t save_idx = savefile.rfind('.',savefile.length());
+	if (save_idx != std::string::npos) {
+		savefile_extension = savefile.substr(save_idx+1, savefile.length() - save_idx);
+	} else {
+		std::cerr<<"The savefile " << savefile << " does not appear to have any file extension."<<std::endl;
+		return -1;
+	}
+	if (savefile_extension == "bin"){
+		std::filebuf fb;
+		if (fb.open (savefile,std::ios::in | std::ios::binary))
+		{
+			std::istream is(&fb);
+			int c = is.peek();
+			if (c != EOF) {
+				sketch.deserialize(is);
+			}
+			fb.close();
+		}
+	} else {
+		std::cerr<<"The savefile must have a .bin extension."<<std::endl;
+		return -1;
+	}
+
+	sketch.pprint(std::cout, 3, true);
+
+    // done parsing information. Begin RACE algorithm:
 
     // buffer for sequences and fasta/fastq chunks
     std::string sequence;
