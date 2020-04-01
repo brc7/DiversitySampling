@@ -131,12 +131,9 @@ int main(int argc, char **argv){
 			filename += "." + file_extension;
 			std::ofstream s;
 			s.open(filename);
+			s.seekp(0,ostream::end);
 			samplestreamvector1.push_back(std::move(s));
-			std::string line;
-			while (s.peek() != EOF){
-				std::getline(s, line);
-				std::cout<<line<<std::endl;
-			};
+
 		}
     } else {
         datastream1.open(argv[4]);
