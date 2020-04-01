@@ -17,7 +17,8 @@ for dir in 0; do
   gunzip *
   for f1 in *_1.fastq; do
     f2=${f1:0:13}_2.fastq
-    (time ${race} ${taus} PE ${savefile} ${f1} ${f2} ${outputs} --range 10 --k 15) >> ${timing_file}
+    mytime="$(time ( ${race} ${taus} PE ${savefile} ${f1} ${f2} ${outputs} --range 10 --k 15 ) 2>&1 1>/dev/null )"
+    echo ${mytime} >> ${timing_file}
   done
   cd ..
   pwd
