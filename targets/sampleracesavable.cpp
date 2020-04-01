@@ -130,7 +130,7 @@ int main(int argc, char **argv){
 			filename += std::to_string(taus[i]);
 			filename += "." + file_extension;
 			std::ofstream s;
-			s.open(filename);
+			s.open(filename, std::ofstream::out | std::ofstream::app);
 			samplestreamvector1.push_back(std::move(s));
 
 		}
@@ -151,8 +151,8 @@ int main(int argc, char **argv){
 			filename2 += "." + file_extension;
 			std::ofstream s1;
 			std::ofstream s2;
-			s1.open(filename1);
-			s2.open(filename2);
+			s1.open(filename1, std::ofstream::out | std::ofstream::app);
+			s2.open(filename2, std::ofstream::out | std::ofstream::app);
 			samplestreamvector1.push_back(std::move(s1));
 			samplestreamvector2.push_back(std::move(s2));
 		}
@@ -289,17 +289,13 @@ int main(int argc, char **argv){
 			if (KDE < tau){
 				switch(format){
 					case 1: // 1 = unpaired
-						samplestreamvector1[i].seekp(0,std::ostream::end);
 						samplestreamvector1[i] << chunk1;
 						break;
 					case 2: // 2 = interleaved
-						samplestreamvector1[i].seekp(0,std::ostream::end);
 						samplestreamvector1[i] << chunk1;
 						break;
 					case 3: // 3 = paired
-						samplestreamvector1[i].seekp(0,std::ostream::end);
 						samplestreamvector1[i] << chunk1;
-						samplestreamvector2[i].seekp(0,std::ostream::end);
 						samplestreamvector2[i] << chunk2;
 						break;
 				}
