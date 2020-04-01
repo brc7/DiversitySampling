@@ -11,7 +11,8 @@ for dir in 0; do
   for f in *.gz; do
     STEM=$(basename "${f}" .gz)
     gunzip "${f}"
-    mv "${STEM}" /temp/"${STEM}"
+    ls
+    mv "${STEM}" /temp/
   done
   cd temp
   for f1 in *_1_reads.fq; do
