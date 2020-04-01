@@ -14,6 +14,7 @@ for dir in 0 1; do
   cd ${temp}
   gunzip *
   for f1 in *_1.fastq; do
+    echo ${f1}
     f2=${f1:0:13}_2.fastq
     mytime="$(time ( ${race} ${taus} PE ${savefile} ${f1} ${f2} ${outputs} --range 10 --k 15 ) 2>&1 1>/dev/null )"
     echo ${mytime}
