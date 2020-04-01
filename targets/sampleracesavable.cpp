@@ -97,14 +97,14 @@ int main(int argc, char **argv){
     std::string filename(argv[4]);
     std::string file_extension = "";
     size_t idx = filename.rfind('.',filename.length());
-    if (file_extension == "fq"){
-        file_extension = "fastq";
-    }
     if (idx != std::string::npos){
         file_extension = filename.substr(idx+1, filename.length() - idx);
     } else {
         std::cerr<<"Input file does not appear to have any file extension."<<std::endl;
         return -1;
+    }
+    if (file_extension == "fq"){
+        file_extension = "fastq";
     }
     if (file_extension != "fasta" && file_extension != "fastq"){
         std::cerr<<"Unknown file extension: "<<file_extension<<std::endl;

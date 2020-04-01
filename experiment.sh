@@ -32,7 +32,7 @@ for dir in 0 1 2 3 4 5 6 7 8 9; do
   for f in *.gz; do
     STEM=$(basename "${f}" .gz)
     gunzip -c "${f}"
-    mv "${STEM}" > /temp/"${STEM}"
+    mv "${STEM}" /temp/"${STEM}"
   done
   cd temp
   for f1 in *_1_reads.fq; do
@@ -45,3 +45,5 @@ for dir in 0 1 2 3 4 5 6 7 8 9; do
   cd ..
   rm -r temp
 done
+
+# needa add the chun thing
