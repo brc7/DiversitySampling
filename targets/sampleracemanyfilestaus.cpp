@@ -146,9 +146,9 @@ int main(int argc, char **argv){
 			std::getline(datastream1, line);
 			if (line.at(0) == '/' && line.rfind('.',line.length()) == std::string::npos) {
 				path = line;
-			} else if (line.rfind('_1',line.length()) != std::string::npos && line.rfind('.',line.length()) != std::string::npos) {
+			} else if (line.rfind("_1",line.length()) != std::string::npos && line.rfind('.',line.length()) != std::string::npos) {
 				filelist1.push_back(path+"/"+line);
-			} else if (line.rfind('_2',line.length()) != std::string::npos && line.rfind('.',line.length()) != std::string::npos) {
+			} else if (line.rfind("_2",line.length()) != std::string::npos && line.rfind('.',line.length()) != std::string::npos) {
 				filelist2.push_back(path+"/"+line);
 			} else {
 				std::cerr<<"Line \""<<line<<"\" not recognized. If it is a filename, it has to end with a file extension and either \"_1\" or \"_2\" for paired end reads. If it is a path it has to start with a \"/\"."<<std::endl;
