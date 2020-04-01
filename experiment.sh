@@ -10,7 +10,7 @@ for dir in 0 1 2 3 4 5 6 7 8 9; do
     echo working on part ${dir}
     cd ${directorypath}${dir}
     mkdir ${temp}
-    find . -maxdepth 1 -name '*.gz' - exec cp {} ${temp}/{} \;
+    find . -maxdepth 1 -name '*.gz' -exec cp {} ${temp}/{} \;
     cd ${temp}
     gunzip *
     for f1 in *_1_reads.fq; do
@@ -23,4 +23,17 @@ for dir in 0 1 2 3 4 5 6 7 8 9; do
     rm -r ${temp}
 done
 
-# needa add the chun thing
+echo working on part chun
+cd /home/public_data/hmp2/chunxiao_download_2_27_2020_hmp2
+mkdir ${temp}
+find . -maxdepth 1 -name '*.gz' -exec cp {} ${temp}/{} \;
+cd ${temp}
+gunzip *
+for f1 in *_1_reads.fq; do
+    echo ${f1}
+    f2=${f1:0:10}_2_reads.fq
+    mytime="$(time ( ${race} ${taus} PE ${savefile} ${f1} ${f2} ${outputs} --range 500000 --k 15 ) 2>&1 1>/dev/null )"
+    echo ${mytime} >> ${timing_file}
+done
+cd ..
+rm -r ${temp}
