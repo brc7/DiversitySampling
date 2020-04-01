@@ -36,7 +36,7 @@ for dir in 0; do
   cd temp
   for f1 in *_1_reads.fq; do
     f2=${f:0:10}_2_reads.fq
-    mytime = "$(time ${race} ${taus} PE experimentsavefile.bin f1 f2 outputs --range 10 --k 15)"
+    mytime = "$(time ${race} ${taus} PE experimentsavefile.bin ${f1} ${f2} ${outputs} --range 10 --k 15)"
     echo ${mytime}
     ${mytime} >> ${timing file}
   done
