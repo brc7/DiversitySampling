@@ -131,7 +131,6 @@ int main(int argc, char **argv){
 			filename += "." + file_extension;
 			std::ofstream s;
 			s.open(filename);
-			s.seekp(0,std::ostream::end);
 			samplestreamvector1.push_back(std::move(s));
 
 		}
@@ -290,13 +289,17 @@ int main(int argc, char **argv){
 			if (KDE < tau){
 				switch(format){
 					case 1: // 1 = unpaired
+						samplestreamvector1[i].seekp(0,std::ostream::end);
 						samplestreamvector1[i] << chunk1;
 						break;
 					case 2: // 2 = interleaved
+						samplestreamvector1[i].seekp(0,std::ostream::end);
 						samplestreamvector1[i] << chunk1;
 						break;
 					case 3: // 3 = paired
+						samplestreamvector1[i].seekp(0,std::ostream::end);
 						samplestreamvector1[i] << chunk1;
+						samplestreamvector2[i].seekp(0,std::ostream::end);
 						samplestreamvector2[i] << chunk2;
 						break;
 				}
