@@ -8,6 +8,7 @@ outputs="/home/Users/bg31/DiversitySampling/results/experiment_sample_1 /home/Us
 
 for dir in 0 1 2 3 4 5 6 7 8 9; do
     echo working on part ${dir}
+    cd ${directorypath}${dir}
     mkdir ${temp}
     find . -maxdepth 1 -name '*.gz' - exec cp {} ${temp}/{} \;
     cd ${temp}
