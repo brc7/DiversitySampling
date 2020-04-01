@@ -229,9 +229,9 @@ int main(int argc, char **argv){
 			int c = is.peek();
 			if (c != EOF) {
 				sketch.deserialize(is);
-//				std::cout<<"Using this saved RACE:"<<std::endl;
+				std::cout<<"Using this saved RACE:"<<std::endl;
 			} else {
-//				std::cout<<"Creating new RACE."<<std::endl;
+				std::cout<<"Creating new RACE."<<std::endl;
 			}
 			fb.close();
 		}
@@ -240,7 +240,7 @@ int main(int argc, char **argv){
 		return -1;
 	}
 
-//	sketch.pprint(std::cout, 3, true);
+	sketch.pprint(std::cout, 3, true);
 
     // done parsing information. Begin RACE algorithm:
 
@@ -309,8 +309,8 @@ int main(int argc, char **argv){
 	{
 		std::ostream os(&fb);
 		sketch.serialize(os);
-//		std::cout<<"Serialized this RACE:"<<std::endl;
-//		sketch.pprint(std::cout, 3, true);
+		std::cout<<"Serialized this RACE:"<<std::endl;
+		sketch.pprint(std::cout, 3, true);
 	} else {
 		std::cerr<<"Failed to serialize RACE structure"<<std::endl;
 		return -1;
