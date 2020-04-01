@@ -7,14 +7,19 @@ outputs="/home/bg31/firstRaceProject/DiversitySampling/results/experiment_sample
 for dir in 0; do
   echo working on part ${dir}
   cd ${directorypath}${dir}
+  pwd  
   mkdir temp
-  find . -name '*.gz' -exec cp {} temp/{} \;
+  find . -maxdepth 1 -name '*.gz' -exec cp {} temp/{} \;
   cd temp
+  pwd
+  ls
   gunzip *
   for f1 in *_1.fastq; do
     f2=${f1:0:13}_2.fastq
-    (time ${race} ${taus} PE experimentsavefile.bin ${f1} ${f2} ${outputs} --range 10 --k 15) >> ${timing file}
+    (time ${race} ${taus} PE experimentsavefile.bin ${f1} ${f2} ${outputs} --range 10 --k 15) >> ${timing_file}
   done
   cd ..
+  pwd
   rm -r temp
+  ls
 done
