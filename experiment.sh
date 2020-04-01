@@ -36,7 +36,7 @@ for dir in 0 1 2 3 4 5 6 7 8 9; do
   done
   cd temp
   for f1 in *_1_reads.fq; do
-    f2=${f:0:10}_2_reads.fq
+    f2=${f1:0:10}_2_reads.fq
     path="${directorypath}${dir}/"
     (time ${race} ${taus} PE experimentsavefile.bin ${path}${f1} ${path}${f2} ${outputs} --range 500000 --k 15) >> ${timing file}
   done

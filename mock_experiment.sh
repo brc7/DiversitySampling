@@ -8,12 +8,12 @@ for dir in 0; do
   echo working on part ${dir}
   cd ${directorypath}${dir}
   mkdir temp
-  cp * temp/
+  find . -name *.gz -exec cp {} temp/{}\;
   cd temp
   gunzip *
-  for f1 in *_1_reads.fq; do
-    f2=${f:0:10}_2_reads.fq
-    path="${directorypath}${dir}/"
+  for f1 in *_1.fastq; do
+    f2=${f1:0:13}_2.fastq
+    path=${directorypath}${dir}/temp/
     (time ${race} ${taus} PE experimentsavefile.bin ${path}${f1} ${path}${f2} ${outputs} --range 10 --k 15) >> ${timing file}
   done
   cd ..
