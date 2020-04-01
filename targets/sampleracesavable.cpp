@@ -131,7 +131,7 @@ int main(int argc, char **argv){
 			filename += "." + file_extension;
 			std::ofstream s;
 			s.open(filename);
-			s.seekp(0,ostream::end);
+			s.seekp(0,std::ostream::end);
 			samplestreamvector1.push_back(std::move(s));
 
 		}
