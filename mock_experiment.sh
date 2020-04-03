@@ -13,9 +13,9 @@ for dir in 0 1; do
   find . -maxdepth 1 -name '*.gz' -exec cp {} ${temp}/{} \;
   cd ${temp}
   gunzip *
-  for f1 in *_1.fastq; do
+  for f1 in *_1.fq; do
     echo ${f1}
-    f2=${f1:0:13}_2.fastq
+    f2=${f1:0:13}_2.fq
     mytime="$(time ( ${race} ${taus} PE ${savefile} ${f1} ${f2} ${outputs} --range 10 --k 15 ) 2>&1 1>/dev/null )"
     echo ${mytime}
     echo ${mytime} >> ${timing_file}
