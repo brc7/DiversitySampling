@@ -34,9 +34,9 @@ find . -maxdepth 1 -name '*.gz' -exec cp {} ${temp}/{} \;
 cd ${temp}
 for z1 in *_1_reads.fq.gz; do
     echo ${z1}
-    gunzip z1
+    gunzip ${z1}
     z2=${z1:0:10}_2_reads.fq.gz
-    gunzip z2
+    gunzip ${z2}
     f1=${z1:0:10}_1_reads.fq
     echo ${f1}
     f2=${f1:0:10}_2_reads.fq
