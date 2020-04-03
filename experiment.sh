@@ -2,7 +2,7 @@ timing_file="/home/Users/bg31/DiversitySampling/results/experiment_timing.txt"
 directorypath="/home/public_data/ibdmdb/part_"
 race="/home/Users/bg31/DiversitySampling/bin/sampleracesavable"
 temp="/home/Users/bg31/DiversitySampling/temp"
-savefile="/home/Users/bg31/DiversitySampling/results/experimentsavefile"
+savefile="/home/Users/bg31/DiversitySampling/results/experimentsavefile.bin"
 taus="1,1.7,2.8,4.5,7.7,12.9,21.5,35.9,59.9,100"
 outputs="/home/Users/bg31/DiversitySampling/results/experiment_sample_1 /home/Users/bg31/DiversitySampling/results/experiment_sample_2"
 
