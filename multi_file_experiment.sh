@@ -11,6 +11,6 @@ inputlistfromtemp="../inputlist.txt"
 cd ${temp}
 pwd > ${inputlistfromtemp}
 cd ..
-ls ${temp} > ${inputlistfromrepo}
+ls ${temp} >> ${inputlistfromrepo}
 mytime="$(time ( ${race} ${taus} PE ${inputlistfromrepo} ${outputs} --range 500000 --k 15 ) 2>&1 1>/dev/null )"
 echo ${mytime} >> ${timing_file}
