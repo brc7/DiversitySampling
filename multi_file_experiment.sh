@@ -12,5 +12,5 @@ cd ${temp}
 pwd > ${inputlistfromtemp}
 cd ..
 ls ${temp} >> ${inputlistfromrepo}
-mytime="$(time ( ${race} ${taus} PE ${inputlistfromrepo} ${outputs} --range 500000 --k 15 ) 2>&1 1>/dev/null )"
+mytime="$(time ( ${race} ${taus} PE ${inputlistfromrepo} ${outputs} --range 500000 --k 15 ) 2>&1)"
 echo ${mytime} >> ${timing_file}
