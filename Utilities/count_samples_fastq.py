@@ -16,7 +16,7 @@ elif len(sys.argv) <= 3:
         output_bool = True
     output_file = None
     if output_bool:
-        output_file = sys.argv[3]
+        output_file = sys.argv[2]
 
     counter = 0
 
