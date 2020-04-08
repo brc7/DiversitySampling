@@ -10,7 +10,7 @@ if len(sys.argv) == 1:
     print("Example usage without output: count_sample_fastq.py input.fastq")
     print("Example usage with output: count_sample_fastq.py input.fastq output.txt")
 
-elif len(sys.argv <= 3):
+elif len(sys.argv) <= 3:
     input_file = sys.argv[1]
     if len(sys.argv) == 3:
         output_bool = True
