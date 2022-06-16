@@ -12,7 +12,7 @@ BIN_DIR = bin/
 INC := -I include
 
 # List of target executables
-TARGETS = samplerace.cpp
+TARGETS = samplerace.cpp permuterace.cpp
 TARGETS_DIR = targets/
 
 # Everything beyond this point is determined from previous declarations, don't modify
