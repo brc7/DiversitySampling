@@ -12,7 +12,7 @@
 
 #include <chrono>
 
-#define DEBUG
+// #define DEBUG
 
 /*
 Copyright 2022, Benjamin Coleman, All rights reserved. 
@@ -59,7 +59,8 @@ int main(int argc, char **argv){
         std::clog<<"[--reps race_reps]: (Optional, default 10) Number of ACE repetitions (R)"<<std::endl;
         std::clog<<"[--hashes n_minhashes]: (Optional, default 1) Number of MinHashes for each ACE (n)"<<std::endl;
         std::clog<<"[--k kmer_size]: (Optional, default 16) Size of each MinHash k-mer (k)"<<std::endl;
-        std::clog<<"[--chunksize chunk_size]: (Optional, default 10000) Number of reads to write to disk at once during permutations. Larger = faster but more RAM."<<std::endl;
+        std::clog<<"[--chunksize chunk_size]: (Optional, default 100000) Number of reads to write to disk at once during permutations. Larger = faster but more RAM."<<std::endl;
+        std::clog<<"[--scoretype score_type]: (Optional, default R) Type of score to use. Either R (for running KDE score), N (for normalized KDE score) or F (for full KDE score). Note that F will require ~50% more computation time."<<std::endl;
 
         std::clog<<std::endl<<"Example usage:"<<std::endl; 
         std::clog<<"permuterace PE data/input-1.fastq data/input-2.fastq data/output-1.fastq data/output-2.fastq --range 100 --reps 50 --hashes 3 --k 5"<<std::endl; 
@@ -127,7 +128,8 @@ int main(int argc, char **argv){
     int race_repetitions = 10;
     int hash_power = 1;
     int kmer_k = 16;
-    int batch_size = 10000;
+    int batch_size = 100000;
+    int score_type = 1; // ENUM: 1 = running, 2 = normalized, 3 = full
 
     for (int i = 0; i < argc; ++i){
         if (std::strcmp("--range",argv[i]) == 0){
@@ -170,6 +172,23 @@ int main(int argc, char **argv){
                 return -1;
             }
         }
+        if (std::strcmp("--scoretype",argv[i]) == 0){
+            if ((i+1) < argc){
+                if (std::strcmp("R",argv[i+1]) == 0){
+                    score_type = 1;
+                } else if (std::strcmp("N",argv[i+1]) == 0){
+                    score_type = 2; 
+                } else if (std::strcmp("F",argv[i+1]) == 0){
+                    score_type = 3; 
+                } else {
+                    std::cerr<<"Invalid scoretype, please specify either R, N or F"<<std::endl; 
+                    return -1;
+                }
+            } else {
+                std::cerr<<"Invalid argument for optional parameter --scoretype"<<std::endl; 
+                return -1;
+            }
+        }
     }
 
     // Check if arguments are valid
@@ -195,6 +214,8 @@ int main(int argc, char **argv){
     // vector of scores
     std::vector<read_info_PE> read_index_PE;
     std::vector<read_info_SEI> read_index_SEI;
+
+    auto score_start = std::chrono::high_resolution_clock::now();
 
     do{
         bool success = false; 
@@ -241,7 +262,66 @@ int main(int argc, char **argv){
     }
     while(datastream1);
 
-    // sort read_scores to get the permutation function
+    // handle alternative score types
+    if (score_type == 2){
+        // normalize scores by the number of elements seen so far
+        for(size_t data_id = 0; data_id < read_index_SEI.size(); data_id++){
+            read_index_SEI[data_id].score = read_index_SEI[data_id].score / (data_id + 1);
+        }
+        for(size_t data_id = 0; data_id < read_index_PE.size(); data_id++){
+            read_index_PE[data_id].score = read_index_PE[data_id].score / (data_id + 1);
+        }
+    } else if (score_type == 3){
+        // re-compute scores using the total KDE
+        datastream1.clear();
+        datastream1.seekg(0);
+        datastream2.clear();
+        datastream2.seekg(0);
+        size_t data_id = 0;
+        do{
+            bool success = false; 
+            int c = datastream1.peek(); 
+            if (c == EOF) {
+                if (datastream1.eof()){
+                    continue; 
+                }
+            }
+            switch(format){
+                case 1: // 1 = unpaired
+                success = SequenceFeaturesSE(datastream1, sequence, chunk1, file_extension);
+                break; 
+                case 2: // 2 = interleaved
+                success = SequenceFeaturesI(datastream1, sequence, chunk1, file_extension); 
+                break; 
+                case 3: // 3 = paired
+                success = SequenceFeaturesPE(datastream1, datastream2, sequence, chunk1, chunk2, file_extension);
+                break; 
+            }
+            if (!success) continue;
+
+            hash.getHash(kmer_k, sequence, raw_hashes); 
+            // now that we have the sequence and label
+            // feed the sequence into the RACE structure
+            // first rehash so that the arrays can fit into RACE
+            rehash(raw_hashes, rehashes, race_repetitions, hash_power);
+            // then simultaneously query and add 
+            double KDE = sketch.query(rehashes); 
+            // note: KDE is on a scale from [0,N] not the normalized interval [0,1]
+            switch(format){
+                case 1: // 1 = unpaired
+                case 2: // 2 = interleaved
+                read_index_SEI[data_id].score = (float)(KDE);
+                break;
+                case 3: // 3 = paired
+                read_index_PE[data_id].score = (float)(KDE);
+                break;
+            }
+            data_id++;
+        }
+        while(datastream1);
+    }
+
+    // sort reads by score to get the permutation function
     std::sort(read_index_SEI.begin(), read_index_SEI.end(),
         [](const read_info_SEI &left, const read_info_SEI &right){
             return left.score < right.score;});
@@ -249,16 +329,19 @@ int main(int argc, char **argv){
         [](const read_info_PE &left, const read_info_PE &right){
             return left.score < right.score;});
 
+    std::chrono::duration<double, std::milli> score_duration = std::chrono::high_resolution_clock::now() - score_start;
+    std::cout<<"Scoring took "<<score_duration.count()/1000.0<<" seconds."<<std::endl;    
+
     // collect the reads into properly-ordered chunks and write each block to the output file
     std::vector<size_t> sorted_idx(batch_size); // for sorting by index
     std::vector<std::string> batch_reads1(batch_size);
     std::vector<std::string> batch_reads2(batch_size);
     size_t num_reads = std::max(read_index_PE.size(), read_index_SEI.size());
 
-    auto start = std::chrono::high_resolution_clock::now();
+    auto write_start = std::chrono::high_resolution_clock::now();
 
     for (size_t num_written = 0; num_written < num_reads; num_written += batch_size){
-        auto batch_start = std::chrono::high_resolution_clock::now();
+        // auto batch_start = std::chrono::high_resolution_clock::now();
         size_t num_available = (num_reads - num_written < batch_size) ? num_reads - num_written : batch_size;
         switch(format){
             case 1:
@@ -406,9 +489,9 @@ int main(int argc, char **argv){
                 }
             break;
         }
-        std::chrono::duration<double, std::milli> duration = std::chrono::high_resolution_clock::now() - batch_start;
-        std::cout<<"Batch time: "<<duration.count()<<" ms. Time/read: "<<duration.count() / (float)(num_available)<<" ms."<<std::endl;
+        // std::chrono::duration<double, std::milli> duration = std::chrono::high_resolution_clock::now() - batch_start;
+        // std::cout<<"Batch write time: "<<duration.count()<<" ms. Time/read: "<<duration.count() / (float)(num_available)<<" ms."<<std::endl;
     }
-    std::chrono::duration<double, std::milli> duration = std::chrono::high_resolution_clock::now() - start;
-    std::cout<<"Took "<<duration.count()/1000.0<<" seconds."<<std::endl;
+    std::chrono::duration<double, std::milli> duration = std::chrono::high_resolution_clock::now() - write_start;
+    std::cout<<"Writing took "<<duration.count()/1000.0<<" seconds."<<std::endl;
 }
