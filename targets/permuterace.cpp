@@ -258,8 +258,8 @@ int main(int argc, char **argv){
     auto start = std::chrono::high_resolution_clock::now();
 
     for (size_t num_written = 0; num_written < num_reads; num_written += batch_size){
+        auto batch_start = std::chrono::high_resolution_clock::now();
         size_t num_available = (num_reads - num_written < batch_size) ? num_reads - num_written : batch_size;
-        // std::cout<<"Batch size: "<<num_available<<std::endl;
         switch(format){
             case 1:
                 // sort the reads in order of their appearance in the file.
@@ -298,10 +298,10 @@ int main(int argc, char **argv){
                     datastream1.seekg(read_index_SEI[i].pos1);
                     // this is messy, we should handle the multiple formats more elegantly
                     bool success = SequenceFeaturesSE(datastream1, sequence, chunk1, file_extension);
-                    #ifdef DEBUG
-                    std::cout<<"\tRead "<<i<<" from position "<<read_index_SEI[i].pos1<<" in batch index "<<batch_idx<<"("<<n<<"/"<<num_available<<")"<<std::endl;
-                    #endif
                     batch_reads1[batch_idx] = chunk1;
+                    #ifdef DEBUG
+                    std::cout<<"\tRead "<<i<<" from position "<<read_index_SEI[i].pos1<<" into batch index "<<batch_idx<<"("<<n<<"/"<<num_available<<")"<<std::endl;
+                    #endif
                 }
                 for (size_t n = 0; n < num_available; n++){
                     samplestream1 << batch_reads1[n];
@@ -311,11 +311,31 @@ int main(int argc, char **argv){
                 // sort the reads in order of their appearance in the file.
                 // sorted_idx[n] is the location inside the batch of the
                 // nth read to appear in the datastream.
+                #ifdef DEBUG
+                std::cout<<"Sorting batch of "<<num_available<<" from "<<num_written<<" to "<<num_written+num_available<<std::endl;
+                #endif
                 std::iota(sorted_idx.begin(), sorted_idx.begin() + num_available, num_written);
                 // This lambda is a bit tricky.
                 std::sort(sorted_idx.begin(), sorted_idx.begin() + num_available,
                     [&read_index_SEI](size_t idx_left, size_t idx_right){
                         return read_index_SEI[idx_left].pos1 < read_index_SEI[idx_right].pos1;});
+
+                #ifdef DEBUG
+                std::cout<<"Batch of items in input-file order:"<<std::endl;
+                for (size_t n = 0; n < num_available; n++){
+                    size_t i = sorted_idx[n];
+                    std::cout<<" ("<<i<<" ["<<read_index_SEI[i].score<<"] @ "<<read_index_SEI[i].pos1<<") ";
+                }
+                std::cout<<std::endl;
+
+                std::cout<<"Batch of items in output-file order:"<<std::endl;
+                for (size_t n = 0; n < num_available; n++){
+                    size_t i = num_written + n;
+                    std::cout<<" ("<<i<<"["<<read_index_SEI[i].score<<"] @ "<<read_index_SEI[i].pos1<<") ";
+                }
+                std::cout<<std::endl;
+                #endif
+
                 for (size_t n = 0; n < num_available; n++){
                     // n is the order of occurence in the input file
                     // i is the order of occurence in the output file
@@ -326,7 +346,9 @@ int main(int argc, char **argv){
                     // this is messy, we should handle the multiple formats more elegantly
                     bool success = SequenceFeaturesSE(datastream1, sequence, chunk1, file_extension);
                     batch_reads1[batch_idx] = chunk1;
-
+                    #ifdef DEBUG
+                    std::cout<<"\tRead "<<i<<" from position "<<read_index_SEI[i].pos1<<" into batch index "<<batch_idx<<"("<<n<<"/"<<num_available<<")"<<std::endl;
+                    #endif
                 }
                 for (size_t n = 0; n < num_available; n++){
                     samplestream1 << batch_reads1[n];
@@ -336,11 +358,31 @@ int main(int argc, char **argv){
                 // sort the reads in order of their appearance in the file.
                 // sorted_idx[n] is the location inside the batch of the
                 // nth read to appear in the datastream.
+                #ifdef DEBUG
+                std::cout<<"Sorting batch of "<<num_available<<" from "<<num_written<<" to "<<num_written+num_available<<std::endl;
+                #endif
                 std::iota(sorted_idx.begin(), sorted_idx.begin() + num_available, num_written);
                 // This lambda is a bit tricky.
                 std::sort(sorted_idx.begin(), sorted_idx.begin() + num_available,
                     [&read_index_PE](size_t idx_left, size_t idx_right){
                         return read_index_PE[idx_left].pos1 < read_index_PE[idx_right].pos1;});
+
+                #ifdef DEBUG
+                std::cout<<"Batch of items in input-file order:"<<std::endl;
+                for (size_t n = 0; n < num_available; n++){
+                    size_t i = sorted_idx[n];
+                    std::cout<<" ("<<i<<" ["<<read_index_PE[i].score<<"] @ "<<read_index_PE[i].pos1<<","<<read_index_PE[i].pos2<<") ";
+                }
+                std::cout<<std::endl;
+
+                std::cout<<"Batch of items in output-file order:"<<std::endl;
+                for (size_t n = 0; n < num_available; n++){
+                    size_t i = num_written + n;
+                    std::cout<<" ("<<i<<"["<<read_index_PE[i].score<<"] @ "<<read_index_PE[i].pos1<<","<<read_index_PE[i].pos2<<") ";
+                }
+                std::cout<<std::endl;
+                #endif
+
                 for (size_t n = 0; n < num_available; n++){
                     // n is the order of occurence in the input file
                     // i is the order of occurence in the output file
@@ -354,6 +396,9 @@ int main(int argc, char **argv){
                     bool success = success = SequenceFeaturesPE(datastream1, datastream2, sequence, chunk1, chunk2, file_extension);
                     batch_reads1[batch_idx] = chunk1;
                     batch_reads2[batch_idx] = chunk2;
+                    #ifdef DEBUG
+                    std::cout<<"\tRead "<<i<<" from positions "<<read_index_PE[i].pos1<<","<<read_index_PE[i].pos2<<" into batch index "<<batch_idx<<"("<<n<<"/"<<num_available<<")"<<std::endl;
+                    #endif
                 }
                 for (size_t n = 0; n < num_available; n++){
                     samplestream1 << batch_reads1[n];
@@ -361,7 +406,9 @@ int main(int argc, char **argv){
                 }
             break;
         }
+        std::chrono::duration<double, std::milli> duration = std::chrono::high_resolution_clock::now() - batch_start;
+        std::cout<<"Batch time: "<<duration.count()<<" ms. Time/read: "<<duration.count() / (float)(num_available)<<" ms."<<std::endl;
     }
     std::chrono::duration<double, std::milli> duration = std::chrono::high_resolution_clock::now() - start;
-    std::cout<<"Took "<<duration.count()<<" milliseconds."<<std::endl;
+    std::cout<<"Took "<<duration.count()/1000.0<<" seconds."<<std::endl;
 }
